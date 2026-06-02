@@ -1095,7 +1095,7 @@ async function exportExcel(){
   });
   const ws=XLSX.utils.aoa_to_sheet(rows);
   const wb=XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(wb,'Pronostici',ws);
+  XLSX.utils.book_append_sheet(wb, ws, 'Pronostici');
   XLSX.writeFile(wb,'TotoMondiale_pronostici.xlsx');
   toast('Excel scaricato!');
 }
