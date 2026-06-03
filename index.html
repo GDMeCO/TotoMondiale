@@ -1,0 +1,984 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TotoMondiale GDM&CO 2026</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --green:#1a6b3c;--green2:#2d9e5f;--gbg:#e8f5ee;
+  --gold:#c9a227;--goldbg:#fdf3d7;
+  --bg:#f4f1eb;--white:#fff;--text:#1a1a1a;--muted:#6b6b6b;
+  --border:#e0dbd0;--r:12px;--sh:0 2px 12px rgba(0,0,0,.07)
+}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+header{background:var(--green);position:sticky;top:0;z-index:200;border-bottom:3px solid var(--gold)}
+.hi{max-width:1120px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;padding:0 20px}
+.logo{padding:10px 0;cursor:default;user-select:none;display:flex;align-items:center;gap:10px}
+.logo-text{font-family:'Bebas Neue',sans-serif;font-size:24px;color:#fff;letter-spacing:2px;line-height:1}
+.logo-text em{color:var(--gold);font-style:normal}
+.logo-sub{font-family:'DM Sans',sans-serif;font-size:11px;color:rgba(255,255,255,.5);font-weight:300;letter-spacing:.3px}
+nav{display:flex;gap:2px}
+nav button{font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;color:rgba(255,255,255,.72);background:transparent;border:none;padding:9px 14px;cursor:pointer;border-radius:6px;transition:all .15s}
+nav button:hover{background:rgba(255,255,255,.13);color:#fff}
+nav button.on{background:var(--gold);color:#3a2800;font-weight:600}
+.sec{display:none}.sec.on{display:block}
+.wrap{max-width:1120px;margin:0 auto;padding:28px 20px}
+.hero{background:var(--green);padding:40px 20px 28px;text-align:center;border-bottom:3px solid var(--gold)}
+.hero-title{font-family:'Bebas Neue',sans-serif;font-size:clamp(52px,10vw,96px);letter-spacing:5px;line-height:.95;color:#fff}
+.hero-title em{color:var(--gold);font-style:normal}
+.hero-sub{font-size:13px;color:rgba(255,255,255,.6);margin-top:10px;letter-spacing:.4px}
+.hero-badge{display:inline-block;background:var(--gold);color:#3a2800;font-family:'Bebas Neue',sans-serif;font-size:14px;letter-spacing:1px;padding:4px 14px;border-radius:20px;margin-top:10px}
+.card{background:var(--white);border-radius:var(--r);border:1px solid var(--border);padding:22px;box-shadow:var(--sh)}
+.ctitle{font-family:'Bebas Neue',sans-serif;font-size:19px;letter-spacing:1px;color:var(--green);margin-bottom:14px;display:flex;align-items:center;gap:8px}
+.ico{width:26px;height:26px;border-radius:5px;display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0}
+.ig{background:var(--gbg);color:var(--green)}.io{background:var(--goldbg);color:var(--gold)}
+.btn{padding:9px 17px;border-radius:8px;font-size:13px;font-weight:600;font-family:'DM Sans',sans-serif;cursor:pointer;transition:all .15s;border:none;white-space:nowrap}
+.bg{background:var(--green);color:#fff}.bg:hover{background:#145a30}
+.bo{background:var(--gold);color:#3a2800}.bo:hover{background:#b08a1a;color:#fff}
+.bx{background:transparent;border:1px solid var(--border);color:var(--text)}.bx:hover{background:var(--bg)}
+.br{background:#c0392b;color:#fff}.br:hover{background:#a93226}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.fgroup{margin-bottom:14px}
+.fgroup label{display:block;font-size:12px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.4px;margin-bottom:5px}
+.finput{width:100%;padding:10px 13px;border:1px solid var(--border);border-radius:8px;font-size:14px;font-family:'DM Sans',sans-serif;background:var(--white);color:var(--text);outline:none;transition:border-color .15s}
+.finput:focus{border-color:var(--green)}
+.ferr{font-size:12px;color:#c00;margin-top:5px;min-height:16px}
+/* RADIO 1X2 */
+.r12{display:flex;gap:6px}
+.r12 input{display:none}
+.r12 label{flex:1;text-align:center;padding:8px 4px;border:1.5px solid var(--border);border-radius:6px;cursor:pointer;font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:1px;color:var(--muted);transition:all .15s;user-select:none}
+.r12 input:checked+label{background:var(--green);border-color:var(--green);color:#fff}
+.r12 label:hover{border-color:var(--green2);color:var(--green2)}
+.r12.locked input{pointer-events:none}
+.r12.locked label{cursor:default;opacity:.8}
+.r12.locked input:checked+label{background:var(--muted);border-color:var(--muted)}
+/* MATCH CARDS */
+.mfg{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:10px;margin-top:16px}
+.mfc{border:1px solid var(--border);border-radius:8px;padding:12px 14px;background:var(--white)}
+.mfc.missing{border-color:#e09090;background:#fff8f8}
+.mname{font-size:12px;font-weight:500;color:var(--text);margin-bottom:8px}
+.mnum{font-size:10px;color:var(--muted);margin-bottom:2px}
+/* LOCKED BANNER */
+.locked-banner{background:var(--goldbg);border:1px solid var(--gold);border-radius:var(--r);padding:14px 18px;margin-bottom:16px;display:flex;align-items:center;gap:10px;font-size:13px;font-weight:500;color:#7a5a00}
+/* WINNER SELECT */
+.winner-card{background:var(--white);border:2px solid var(--gold);border-radius:var(--r);padding:18px 22px;margin-top:16px}
+.winner-card .ctitle{color:var(--gold)}
+.winner-select{width:100%;padding:10px 13px;border:1px solid var(--border);border-radius:8px;font-size:14px;font-family:'DM Sans',sans-serif;background:var(--white);color:var(--text);outline:none}
+.winner-select:focus{border-color:var(--gold)}
+/* LEADERBOARD */
+.ltbl{width:100%;border-collapse:collapse;font-size:14px}
+.ltbl th{text-align:left;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.4px;color:var(--muted);padding:8px 12px;border-bottom:2px solid var(--border)}
+.ltbl td{padding:11px 12px;border-bottom:1px solid var(--border)}
+.ltbl tr:last-child td{border-bottom:none}
+.ltbl tbody tr:hover td{background:var(--bg)}
+.rn{font-family:'Bebas Neue',sans-serif;font-size:22px;color:var(--muted);min-width:32px;display:inline-block;text-align:center}
+.r1{color:#c9a227}.r2{color:#8a8a8a}.r3{color:#c87533}
+.un{font-weight:600;font-size:15px}
+.pts{font-family:'Bebas Neue',sans-serif;font-size:24px;color:var(--green);letter-spacing:1px}
+.pbar{height:4px;background:var(--border);border-radius:2px;margin-top:4px;overflow:hidden}
+.pfill{height:100%;background:var(--green2);border-radius:2px;transition:width .5s}
+/* RISULTATI */
+.mgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(295px,1fr));gap:9px}
+.mc{border:1px solid var(--border);border-radius:8px;padding:11px 13px;background:var(--white);display:flex;justify-content:space-between;align-items:center;gap:9px}
+.mc.ok{border-color:var(--green2);background:var(--gbg)}
+.mc.ko{border-color:#e0a090;background:#fff5f2}
+.mc.nd{background:var(--bg)}
+.mn{font-size:12px;font-weight:500;flex:1;min-width:0}
+.mnp{font-size:10px;color:var(--muted);margin-bottom:2px}
+.pill{font-family:'Bebas Neue',sans-serif;font-size:17px;letter-spacing:1px;min-width:26px;text-align:center;padding:2px 7px;border-radius:4px}
+.pu{background:#efefef;color:var(--text)}.pe{background:var(--gbg);color:var(--green)}.pw{background:var(--green);color:#fff}
+/* STATS */
+.srow{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:10px;margin-bottom:20px}
+.sc{background:var(--white);border:1px solid var(--border);border-radius:var(--r);padding:14px 16px;text-align:center}
+.sl{font-size:11px;color:var(--muted);font-weight:500;text-transform:uppercase;letter-spacing:.4px;margin-bottom:4px}
+.sv{font-family:'Bebas Neue',sans-serif;font-size:28px;color:var(--green);letter-spacing:1px;line-height:1}
+/* ADMIN */
+.adm-login{max-width:380px;margin:50px auto}
+.tag{display:inline-block;font-size:11px;font-weight:600;padding:2px 8px;border-radius:20px;background:var(--gbg);color:var(--green)}
+.eg{border:1px solid var(--border);border-radius:8px;padding:11px 13px;background:var(--white);display:flex;align-items:center;gap:10px}
+.eg-name{flex:1;font-size:12px;font-weight:500}
+.eg-num{font-size:10px;color:var(--muted);margin-bottom:2px}
+.eg select{padding:6px 10px;border:1px solid var(--border);border-radius:6px;font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:1px;background:var(--white);color:var(--text);cursor:pointer;outline:none;min-width:70px}
+.eg select:focus{border-color:var(--green)}
+.eg select.hv{background:var(--gbg);border-color:var(--green2);color:var(--green);font-weight:700}
+.esiti-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:9px;margin-top:16px}
+.utbl{width:100%;border-collapse:collapse;font-size:14px}
+.utbl th{text-align:left;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.4px;color:var(--muted);padding:8px 12px;border-bottom:2px solid var(--border)}
+.utbl td{padding:10px 12px;border-bottom:1px solid var(--border);vertical-align:middle}
+.utbl tr:last-child td{border-bottom:none}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.spinner{width:22px;height:22px;border:2px solid var(--border);border-top-color:var(--green);border-radius:50%;animation:spin .7s linear infinite;margin:0 auto}
+@keyframes spin{to{transform:rotate(360deg)}}
+.lrow{display:flex;align-items:center;justify-content:center;gap:10px;padding:32px;color:var(--muted);font-size:13px}
+.empty{text-align:center;padding:40px 24px;color:var(--muted)}
+.empty .ei{font-size:36px;margin-bottom:10px}
+.empty h3{font-size:15px;font-weight:600;color:var(--text);margin-bottom:6px}
+.empty p{font-size:13px;line-height:1.6}
+.sep{border:none;border-top:1px solid var(--border);margin:16px 0}
+.toast{position:fixed;bottom:24px;right:24px;background:var(--green);color:#fff;padding:12px 20px;border-radius:10px;font-size:13px;font-weight:500;z-index:9999;transform:translateY(80px);opacity:0;transition:all .3s;pointer-events:none}
+.toast.show{transform:translateY(0);opacity:1}
+.toast.err{background:#c0392b}
+.urow{display:flex;gap:10px;margin-bottom:20px;align-items:center}
+.urow select{flex:1;padding:10px 14px;border:1px solid var(--border);border-radius:8px;font-size:14px;font-family:'DM Sans',sans-serif;background:var(--white);color:var(--text);cursor:pointer;outline:none}
+.urow select:focus{border-color:var(--green)}
+.winner-result-card{background:var(--goldbg);border:1px solid var(--gold);border-radius:8px;padding:12px 16px;margin-top:12px;display:flex;align-items:center;justify-content:space-between;gap:10px}
+.winner-result-card.ok{background:var(--gbg);border-color:var(--green2)}
+.winner-result-card.ko{background:#fff5f2;border-color:#e0a090}
+footer{text-align:center;padding:20px;font-size:12px;color:var(--muted);border-top:1px solid var(--border);margin-top:40px}
+@media(max-width:600px){
+  nav button{padding:8px 8px;font-size:11px}
+  .g2{grid-template-columns:1fr}
+  .mgrid,.mfg,.esiti-grid{grid-template-columns:1fr}
+  .logo-text{font-size:20px}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="hi">
+    <div class="logo" id="logoclick">
+      <div>
+        <div class="logo-text">Toto<em>Mondiale</em></div>
+        <div class="logo-sub">GDM&CO 2026</div>
+      </div>
+    </div>
+    <nav id="mainnav">
+      <button class="on" onclick="go('home',this)">🏠 Home</button>
+      <button onclick="go('pronostica',this)">⚽ Pronostica</button>
+      <button onclick="go('risultati',this)">👤 Risultati</button>
+      <button onclick="go('classifica',this)">🏆 Classifica</button>
+    </nav>
+  </div>
+</header>
+
+<section id="home" class="sec on">
+  <div class="hero">
+    <div class="hero-title">Toto<em>Mondiale</em></div>
+    <div class="hero-sub">FIFA World Cup 2026 &nbsp;·&nbsp; GDM&CO</div>
+    <div class="hero-badge">Chi indovina di più vince!</div>
+  </div>
+  <div class="wrap">
+    <div id="home-guest" style="max-width:480px;margin:0 auto">
+      <div class="card">
+        <div class="ctitle"><div class="ico ig">🔐</div> Accedi o Registrati</div>
+        <p style="font-size:13px;color:var(--muted);margin-bottom:18px">Crea il tuo account per inserire i pronostici e seguire la classifica.</p>
+        <div class="g2" style="gap:10px">
+          <button class="btn bg" onclick="showAuthModal('login')" style="width:100%">Accedi</button>
+          <button class="btn bo" onclick="showAuthModal('register')" style="width:100%">Registrati</button>
+        </div>
+      </div>
+    </div>
+    <div id="home-user" style="display:none;max-width:600px;margin:0 auto">
+      <div class="card">
+        <div class="ctitle"><div class="ico ig">👋</div> Bentornato, <span id="home-username" style="color:var(--gold);margin-left:4px"></span>!</div>
+        <div class="srow" id="home-stats"></div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap">
+          <button class="btn bg" onclick="go('pronostica',document.querySelector('#mainnav button:nth-child(2)'))">⚽ I miei pronostici</button>
+          <button class="btn bo" onclick="go('classifica',document.querySelector('#mainnav button:nth-child(4)'))">🏆 Classifica</button>
+          <button class="btn bx" onclick="logout()">Esci</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="pronostica" class="sec">
+  <div class="wrap">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;flex-wrap:wrap;gap:10px">
+      <h2 style="font-family:'Bebas Neue',sans-serif;font-size:26px;letter-spacing:1px;color:var(--green)">I tuoi pronostici</h2>
+      <span id="pron-who" style="font-size:13px;color:var(--muted)"></span>
+    </div>
+    <div id="pron-nologin" class="card">
+      <div class="empty"><div class="ei">🔐</div><h3>Accedi per pronosticare</h3>
+        <p>Devi essere registrato per inserire i tuoi pronostici.</p>
+        <button class="btn bg" style="margin-top:14px" onclick="showAuthModal('login')">Accedi</button>
+      </div>
+    </div>
+    <div id="pron-content" style="display:none">
+      <div id="pron-locked" class="locked-banner" style="display:none">
+        🔒 Hai già salvato i tuoi pronostici. Non è più possibile modificarli.
+      </div>
+      <div id="pron-open">
+        <div class="card" style="margin-bottom:16px">
+          <p style="font-size:13px;color:var(--muted)">Seleziona <strong>1</strong>, <strong>X</strong> o <strong>2</strong> per ogni partita. Devi compilare tutti i campi e scegliere il vincitore mondiale prima di salvare. <strong style="color:#c0392b">Una volta salvato non potrai più modificare.</strong></p>
+        </div>
+        <div class="mfg" id="match-form-grid"></div>
+        <div class="winner-card">
+          <div class="ctitle"><div class="ico io">🏆</div> Vincitore Mondiale <span style="font-size:13px;font-weight:400;color:var(--muted);margin-left:6px;font-family:'DM Sans',sans-serif">(+5 punti se indovinato)</span></div>
+          <select class="winner-select" id="winner-select">
+            <option value="">— Seleziona la squadra vincitrice —</option>
+            <option value="Argentina">Argentina</option>
+            <option value="Australia">Australia</option>
+            <option value="Austria">Austria</option>
+            <option value="Belgio">Belgio</option>
+            <option value="Bolivia">Bolivia</option>
+            <option value="Bosnia-Erz">Bosnia-Erz.</option>
+            <option value="Brasile">Brasile</option>
+            <option value="Canada">Canada</option>
+            <option value="Capo Verde">Capo Verde</option>
+            <option value="Repubblica Ceca">Repubblica Ceca</option>
+            <option value="Colombia">Colombia</option>
+            <option value="Corea del Sud">Corea del Sud</option>
+            <option value="Costa d'Avorio">Costa d'Avorio</option>
+            <option value="Croazia">Croazia</option>
+            <option value="Curaçao">Curaçao</option>
+            <option value="Ecuador">Ecuador</option>
+            <option value="Egitto">Egitto</option>
+            <option value="Francia">Francia</option>
+            <option value="Germania">Germania</option>
+            <option value="Ghana">Ghana</option>
+            <option value="Congo">Congo</option>
+            <option value="Giappone">Giappone</option>
+            <option value="Giordania">Giordania</option>
+            <option value="Haiti">Haiti</option>
+            <option value="Iraq">Iraq</option>
+            <option value="Inghilterra">Inghilterra</option>
+            <option value="Iran">Iran</option>
+            <option value="Turchia">Turchia</option>
+            <option value="Marocco">Marocco</option>
+            <option value="Messico">Messico</option>
+            <option value="Norvegia">Norvegia</option>
+            <option value="Nuova Zelanda">Nuova Zelanda</option>
+            <option value="Olanda">Olanda</option>
+            <option value="Panama">Panama</option>
+            <option value="Paraguay">Paraguay</option>
+            <option value="Portogallo">Portogallo</option>
+            <option value="Qatar">Qatar</option>
+            <option value="Arabia Saudita">Arabia Saudita</option>
+            <option value="Scozia">Scozia</option>
+            <option value="Senegal">Senegal</option>
+            <option value="Spagna">Spagna</option>
+            <option value="Sudafrica">Sudafrica</option>
+            <option value="Svizzera">Svizzera</option>
+            <option value="Tunisia">Tunisia</option>
+            <option value="Uruguay">Uruguay</option>
+            <option value="USA">USA</option>
+            <option value="Uzbekistan">Uzbekistan</option>
+          </select>
+        </div>
+        <div style="margin-top:20px;display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+          <button class="btn bg" id="save-pron-btn" onclick="savePron()">💾 Salva pronostici</button>
+          <span id="pron-msg" style="font-size:13px;min-height:16px;color:#c00"></span>
+        </div>
+      </div>
+      <div id="pron-view" style="display:none">
+        </div>
+    </div>
+  </div>
+</section>
+
+<section id="risultati" class="sec">
+  <div class="wrap">
+    <h2 style="font-family:'Bebas Neue',sans-serif;font-size:26px;letter-spacing:1px;color:var(--green);margin-bottom:18px">Risultati per partecipante</h2>
+    <div class="urow">
+      <select id="usel" onchange="showUser()"><option value="">— Seleziona un partecipante —</option></select>
+      <button class="btn bx" onclick="loadAll()">↻</button>
+    </div>
+    <div id="ustats" class="srow" style="display:none"></div>
+    <div id="uwinner" style="display:none;margin-bottom:12px"></div>
+    <div id="umatches" class="mgrid"></div>
+  </div>
+</section>
+
+<section id="classifica" class="sec">
+  <div class="wrap">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;flex-wrap:wrap;gap:10px">
+      <h2 style="font-family:'Bebas Neue',sans-serif;font-size:26px;letter-spacing:1px;color:var(--green)">Classifica live</h2>
+      <button class="btn bx" onclick="loadAll()">🏆 Aggiorna</button>
+    </div>
+    <div class="srow" id="gstats" style="margin-bottom:20px"></div>
+    <div class="card" style="padding:0;overflow:hidden">
+      <div id="lbody"><div class="lrow"><div class="spinner"></div> Caricamento...</div></div>
+    </div>
+  </div>
+</section>
+
+<section id="admin" class="sec">
+  <div class="wrap">
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:22px">
+      <h2 style="font-family:'Bebas Neue',sans-serif;font-size:26px;letter-spacing:1px;color:var(--green)">Pannello Admin</h2>
+      <span class="tag">🔒 Privato</span>
+    </div>
+    <div id="adm-login" class="adm-login">
+      <div class="card">
+        <div class="ctitle"><div class="ico io">🔑</div> Accesso amministratore</div>
+        <div class="fgroup"><label>Password</label>
+          <input type="password" class="finput" id="adm-pwd" placeholder="Password admin" onkeydown="if(event.key==='Enter')admLogin()">
+        </div>
+        <button class="btn bg" style="width:100%" onclick="admLogin()">Accedi</button>
+        <div class="ferr" id="adm-err"></div>
+      </div>
+    </div>
+    <div id="adm-panel" style="display:none">
+      <div style="display:flex;justify-content:flex-end;margin-bottom:16px;gap:10px;flex-wrap:wrap">
+        <button class="btn bx" onclick="admLogout()">🚪 Esci</button>
+      </div>
+      <div style="display:flex;gap:6px;margin-bottom:20px;flex-wrap:wrap">
+        <button class="btn bg" id="atab1" onclick="admTab(1)">📅 Esiti partite</button>
+        <button class="btn bx" id="atab2" onclick="admTab(2)">👥 Gestione utenti</button>
+        <button class="btn bx" id="atab3" onclick="admTab(3)">📊 Esporta Excel</button>
+        <button class="btn bx" id="atab4" onclick="admTab(4)">⚙️ Impostazioni</button>
+      </div>
+      <div id="adm-t1">
+        <div class="card">
+          <div class="ctitle"><div class="ico ig">📅</div> Esiti partite</div>
+          <p style="font-size:13px;color:var(--muted);margin-bottom:12px">Inserisci i risultati delle partite disputate. I punteggi si aggiornano automaticamente.</p>
+          <div style="background:var(--goldbg);border:1px solid var(--gold);border-radius:8px;padding:14px 18px;margin-bottom:4px">
+            <div style="font-size:13px;font-weight:600;color:#7a5a00;margin-bottom:8px">🏆 Vincitore Mondiale (vale 5 punti)</div>
+            <select class="winner-select" id="adm-winner" style="max-width:300px">
+              <option value="">— Non ancora assegnato —</option>
+              <option value="Argentina">Argentina</option>
+              <option value="Australia">Australia</option>
+              <option value="Austria">Austria</option>
+              <option value="Belgio">Belgio</option>
+              <option value="Bolivia">Bolivia</option>
+              <option value="Bosnia-Erz.">Bosnia-Erz.</option>
+              <option value="Brasile">Brasile</option>
+              <option value="Canada">Canada</option>
+              <option value="Capo Verde">Capo Verde</option>
+              <option value="Repubblica Ceca">Repubblica Ceca</option>
+              <option value="Colombia">Colombia</option>
+              <option value="Corea del Sud">Corea del Sud</option>
+              <option value="Costa d'Avorio">Costa d'Avorio</option>
+              <option value="Croazia">Croazia</option>
+              <option value="Curaçao">Curaçao</option>
+              <option value="Ecuador">Ecuador</option>
+              <option value="Egitto">Egitto</option>
+              <option value="Francia">Francia</option>
+              <option value="Germania">Germania</option>
+              <option value="Ghana">Ghana</option>
+              <option value="Congo">Congo</option>
+              <option value="Giappone">Giappone</option>
+              <option value="Giordania">Giordania</option>
+              <option value="Haiti">Haiti</option>
+              <option value="Iraq">Iraq</option>
+              <option value="Inghilterra">Inghilterra</option>
+              <option value="Iran">Iran</option>
+              <option value="Turchia">Turchia</option>
+              <option value="Marocco">Marocco</option>
+              <option value="Messico">Messico</option>
+              <option value="Norvegia">Norvegia</option>
+              <option value="Nuova Zelanda">Nuova Zelanda</option>
+              <option value="Olanda">Olanda</option>
+              <option value="Panama">Panama</option>
+              <option value="Paraguay">Paraguay</option>
+              <option value="Portogallo">Portogallo</option>
+              <option value="Qatar">Qatar</option>
+              <option value="Arabia Saudita">Arabia Saudita</option>
+              <option value="Scozia">Scozia</option>
+              <option value="Senegal">Senegal</option>
+              <option value="Spagna">Spagna</option>
+              <option value="Sudafrica">Sudafrica</option>
+              <option value="Svizzera">Svizzera</option>
+              <option value="Tunisia">Tunisia</option>
+              <option value="Uruguay">Uruguay</option>
+              <option value="USA">USA</option>
+              <option value="Uzbekistan">Uzbekistan</option>
+            </select>
+          </div>
+          <div style="display:flex;gap:10px;margin-top:14px;flex-wrap:wrap;align-items:center">
+            <button class="btn bg" onclick="saveEsiti()">💾 Salva tutti gli esiti</button>
+            <span id="esiti-msg" style="font-size:13px;color:var(--green);min-height:16px"></span>
+          </div>
+          <div class="esiti-grid" id="esiti-grid"></div>
+        </div>
+      </div>
+      <div id="adm-t2" style="display:none">
+        <div class="card" style="padding:0;overflow:hidden">
+          <div style="padding:16px 22px 12px;border-bottom:1px solid var(--border)">
+            <div class="ctitle" style="margin-bottom:0"><div class="ico ig">👥</div> Partecipanti</div>
+          </div>
+          <div id="utenti-list"></div>
+        </div>
+      </div>
+      <div id="adm-t3" style="display:none">
+        <div class="card">
+          <div class="ctitle"><div class="ico ig">📊</div> Esporta pronostici Excel</div>
+          <p style="font-size:13px;color:var(--muted);margin-bottom:16px">Scarica un file Excel con tutti i pronostici di tutti i partecipanti, inclusi i risultati attuali e i punteggi.</p>
+          <button class="btn bg" onclick="exportExcel()">⬇️ Scarica Excel</button>
+        </div>
+      </div>
+      <div id="adm-t4" style="display:none">
+        <div class="card" style="max-width:440px">
+          <div class="ctitle"><div class="ico io">⚙️</div> Impostazioni</div>
+          <div class="fgroup"><label>Nuova password admin</label>
+            <input type="password" class="finput" id="new-adm-pwd" placeholder="Lascia vuoto per non cambiare">
+          </div>
+          <button class="btn bg" onclick="changeAdmPwd()">Salva password</button>
+          <div id="settings-msg" style="font-size:12px;color:var(--green);margin-top:8px;min-height:16px"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div id="modal-bg" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:500;align-items:center;justify-content:center;padding:20px">
+  <div class="card" style="width:100%;max-width:400px;position:relative">
+    <button onclick="closeModal()" style="position:absolute;top:14px;right:14px;background:none;border:none;font-size:18px;cursor:pointer;color:var(--muted)">✕</button>
+    
+    <div id="modal-login">
+      <div class="ctitle"><div class="ico ig">🔐</div> Accedi</div>
+      <div class="fgroup"><label>Username</label><input type="text" class="finput" id="login-user" placeholder="Il tuo username" autocomplete="username"></div>
+      <div class="fgroup"><label>Password</label><input type="password" class="finput" id="login-pwd" placeholder="Password" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()"></div>
+      <div class="ferr" id="login-err"></div>
+      <button class="btn bg" style="width:100%;margin-top:4px" onclick="doLogin()">Accedi</button>
+      <p style="font-size:13px;color:var(--muted);text-align:center;margin-top:12px">Non hai un account? <a href="#" onclick="switchModal('register')" style="color:var(--green);font-weight:600">Registrati</a></p>
+    </div>
+    
+    <div id="modal-register" style="display:none">
+      <div class="ctitle"><div class="ico io">✨</div> Registrati</div>
+      <div class="fgroup"><label>Nome</label><input type="text" class="finput" id="reg-nome" placeholder="Il tuo nome"></div>
+      <div class="fgroup"><label>Cognome</label><input type="text" class="finput" id="reg-cognome" placeholder="Il tuo cognome"></div>
+      <div class="fgroup"><label>Username</label><input type="text" class="finput" id="reg-user" placeholder="Scegli un username" autocomplete="username"></div>
+      <div class="fgroup"><label>Password</label><input type="password" class="finput" id="reg-pwd" placeholder="Scegli una password" autocomplete="new-password"></div>
+      <div class="fgroup"><label>Conferma password</label><input type="password" class="finput" id="reg-pwd2" placeholder="Ripeti la password" onkeydown="if(event.key==='Enter')doRegister()"></div>
+      <div class="ferr" id="reg-err"></div>
+      <button class="btn bo" style="width:100%;margin-top:4px" onclick="doRegister()">Registrati</button>
+      <p style="font-size:13px;color:var(--muted);text-align:center;margin-top:12px">Hai già un account? <a href="#" onclick="switchModal('login')" style="color:var(--green);font-weight:600">Accedi</a></p>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+<footer>TotoMondiale GDM&CO 2026 &nbsp;·&nbsp; Powered by Supabase</footer>
+
+<script>
+const SURL = 'https://kfcbuahhqkrpiivcwzdq.supabase.co';
+const SKEY = 'sb_publishable_jx8YOqz8kppIiX0V0PT6tw_4TMi0A51';
+const ADM_KEY = 'tm_adm_pwd';
+const ADM_AUTH = 'tm_adm_auth';
+const USR_KEY = 'tm_user';
+const WINNER_PTS = 5;
+const sb = supabase.createClient(SURL, SKEY);
+
+const TEAMS = [
+  "Argentina", "Australia", "Austria", "Belgio", "Bolivia", "Bosnia-Erz.", "Brasile", "Canada", "Capo Verde", "Repubblica Ceca", "Colombia", "Corea del Sud", "Costa d'Avorio", "Croazia", "Curaçao", "Ecuador", "Egitto", "Francia", "Germania", "Ghana", "Congo", "Giappone", "Giordania", "Haiti", "Iraq", "Inghilterra", "Iran", "Turchia", "Marocco", "Messico", "Norvegia", "Nuova Zelanda", "Olanda", "Panama", "Paraguay", "Portogallo", "Qatar", "Arabia Saudita", "Scozia", "Senegal", "Spagna", "Sudafrica", "Svizzera", "Tunisia", "Uruguay", "USA", "Uzbekistan"
+];
+const MATCHES = [
+  {id:1,t1:"Messico",t2:"Sudafrica"}, {id:2,t1:"Corea del Sud",t2:"Repubblica Ceca"}, {id:3,t1:"Canada",t2:"Bosnia-Erz."}, {id:4,t1:"USA",t2:"Paraguay"}, {id:5,t1:"Qatar",t2:"Svizzera"}, {id:6,t1:"Brasile",t2:"Marocco"}, {id:7,t1:"Haiti",t2:"Scozia"}, {id:8,t1:"Australia",t2:"Turchia"}, {id:9,t1:"Germania",t2:"Curaçao"}, {id:10,t1:"Olanda",t2:"Giappone"}, {id:11,t1:"Costa d'Avorio",t2:"Ecuador"}, {id:12,t1:"Tunisia",t2:"Svezia"}, {id:13,t1:"Spagna",t2:"Capo Verde"}, {id:14,t1:"Belgio",t2:"Egitto"}, {id:15,t1:"Arabia Saudita",t2:"Uruguay"}, {id:16,t1:"Iran",t2:"Nuova Zelanda"}, {id:17,t1:"Francia",t2:"Senegal"}, {id:18,t1:"Norvegia",t2:"Iraq"}, {id:19,t1:"Argentina",t2:"Algeria"}, {id:20,t1:"Austria",t2:"Giordania"}, {id:21,t1:"Portogallo",t2:"Congo"}, {id:22,t1:"Inghilterra",t2:"Croazia"}, {id:23,t1:"Ghana",t2:"Panama"}, {id:24,t1:"Uzbekistan",t2:"Colombia"}, {id:25,t1:"Sudafrica",t2:"Repubblica Ceca"}, {id:26,t1:"Svizzera",t2:"Bosnia-Erz."}, {id:27,t1:"Canada",t2:"Qatar"}, {id:28,t1:"Messico",t2:"Corea del Sud"}, {id:29,t1:"USA",t2:"Australia"}, {id:30,t1:"Scozia",t2:"Marocco"}, {id:31,t1:"Brasile",t2:"Haiti"}, {id:32,t1:"Paraguay",t2:"Turchia"}, {id:33,t1:"Olanda",t2:"Svezia"}, {id:34,t1:"Germania",t2:"Costa d'Avorio"}, {id:35,t1:"Ecuador",t2:"Curaçao"}, {id:36,t1:"Tunisia",t2:"Giappone"}, {id:37,t1:"Spagna",t2:"Arabia Saudita"}, {id:38,t1:"Belgio",t2:"Iran"}, {id:39,t1:"Uruguay",t2:"Capo Verde"}, {id:40,t1:"Nuova Zelanda",t2:"Egitto"}, {id:41,t1:"Argentina",t2:"Austria"}, {id:42,t1:"Francia",t2:"Iraq"}, {id:43,t1:"Norvegia",t2:"Senegal"}, {id:44,t1:"Giordania",t2:"Algeria"}, {id:45,t1:"Portogallo",t2:"Uzbekistan"}, {id:46,t1:"Inghilterra",t2:"Ghana"}, {id:47,t1:"Panama",t2:"Croazia"}, {id:48,t1:"Colombia",t2:"Congo"}, {id:49,t1:"Canada",t2:"Svizzera"}, {id:50,t1:"Qatar",t2:"Bosnia-Erz."}, {id:51,t1:"Scozia",t2:"Brasile"}, {id:52,t1:"Marocco",t2:"Haiti"}, {id:53,t1:"Messico",t2:"Repubblica Ceca"}, {id:54,t1:"Corea del Sud",t2:"Sudafrica"}, {id:55,t1:"Ecuador",t2:"Germania"}, {id:56,t1:"Curaçao",t2:"Costa d'Avorio"}, {id:57,t1:"Tunisia",t2:"Olanda"}, {id:58,t1:"Giappone",t2:"Svezia"}, {id:59,t1:"USA",t2:"Turchia"}, {id:60,t1:"Paraguay",t2:"Australia"}, {id:61,t1:"Norvegia",t2:"Francia"}, {id:62,t1:"Senegal",t2:"Iraq"}, {id:63,t1:"Uruguay",t2:"Spagna"}, {id:64,t1:"Capo Verde",t2:"Arabia Saudita"}, {id:65,t1:"Nuova Zelanda",t2:"Belgio"}, {id:66,t1:"Egitto",t2:"Iran"}, {id:67,t1:"Panama",t2:"Inghilterra"}, {id:68,t1:"Croazia",t2:"Ghana"}, {id:69,t1:"Colombia",t2:"Portogallo"}, {id:70,t1:"Uzbekistan",t2:"Congo"}, {id:71,t1:"Giordania",t2:"Argentina"}, {id:72,t1:"Algeria",t2:"Austria"}
+];
+
+let currentUser = null;
+let classiData = null;
+
+async function init() {
+  const s = localStorage.getItem(USR_KEY);
+  if (s) { currentUser = JSON.parse(s); updateHomeUI(); }
+  loadAll();
+}
+
+function go(id, btn) {
+  document.querySelectorAll('.sec').forEach(s => s.classList.remove('on'));
+  document.querySelectorAll('#mainnav button').forEach(b => b.classList.remove('on'));
+  document.getElementById(id).classList.add('on');
+  if (btn) btn.classList.add('on');
+  if (id === 'pronostica') renderPronostica();
+  if (id === 'risultati') { if(classiData) renderRisultati(); else loadAll().then(renderRisultati); }
+  if (id === 'classifica') renderClassifica();
+  if (id === 'admin') initAdmin();
+}
+
+let lc=0,lt;
+document.getElementById('logoclick').addEventListener('click',()=>{
+  lc++; clearTimeout(lt); lt=setTimeout(()=>lc=0,1500);
+  if(lc>=5){ lc=0; document.querySelectorAll('.sec').forEach(s=>s.classList.remove('on')); document.querySelectorAll('#mainnav button').forEach(b=>b.classList.remove('on')); document.getElementById('admin').classList.add('on'); initAdmin(); }
+});
+
+function showAuthModal(t){ document.getElementById('modal-bg').style.display='flex'; switchModal(t); }
+function closeModal(){ document.getElementById('modal-bg').style.display='none'; }
+function switchModal(t){
+  document.getElementById('modal-login').style.display=t==='login'?'block':'none';
+  document.getElementById('modal-register').style.display=t==='register'?'block':'none';
+  document.getElementById('login-err').textContent=''; document.getElementById('reg-err').textContent='';
+  if(t==='login'){
+    document.getElementById('reg-nome').value='';
+    document.getElementById('reg-cognome').value='';
+    document.getElementById('reg-user').value='';
+    document.getElementById('reg-pwd').value='';
+    document.getElementById('reg-pwd2').value='';
+  }
+}
+document.getElementById('modal-bg').addEventListener('click',e=>{ if(e.target===document.getElementById('modal-bg')) closeModal(); });
+
+async function doRegister(){
+  const nome = document.getElementById('reg-nome').value.trim();
+  const cognome = document.getElementById('reg-cognome').value.trim();
+  const user = document.getElementById('reg-user').value.trim();
+  const pwd = document.getElementById('reg-pwd').value;
+  const pwd2 = document.getElementById('reg-pwd2').value;
+  const err = document.getElementById('reg-err');
+
+  err.textContent = '';
+
+  if(!nome || !cognome || !user || user.length < 3){
+    err.textContent = 'Nome, Cognome e Username (min 3 car.) sono obbligatori.';
+    return;
+  }
+
+  if(!pwd || pwd.length < 4){
+    err.textContent = 'Password minimo 4 caratteri.';
+    return;
+  }
+
+  if(pwd !== pwd2){
+    err.textContent = 'Le password non coincidono.';
+    return;
+  }
+
+  try {
+    const { data: existing } = await sb
+      .from('utenti')
+      .select('id')
+      .eq('username', user)
+      .single();
+
+    if(existing){
+      err.textContent = 'Username già in uso.';
+      return;
+    }
+  } catch(e){}
+
+  try {
+    const hashed = await hashPwd(pwd);
+
+    const { data, error } = await sb
+      .from('utenti')
+      .insert({
+        username: user,
+        password_hash: hashed,
+        nome: nome,
+        cognome: cognome,
+        attivo: true
+      })
+      .select()
+      .single();
+
+    if(error){
+      err.textContent = error.message;
+      return;
+    }
+
+    currentUser = { id: data.id, username: data.username };
+    localStorage.setItem(USR_KEY, JSON.stringify(currentUser));
+
+    closeModal();
+    updateHomeUI();
+    toast('Benvenuto ' + user + '!');
+
+  } catch(e){
+    err.textContent = 'Errore durante la registrazione.';
+  }
+}
+
+async function doLogin(){
+  const user = document.getElementById('login-user').value.trim();
+  const pwd = document.getElementById('login-pwd').value;
+  const err = document.getElementById('login-err');
+
+  err.textContent = '';
+
+  if(!user || !pwd){
+    err.textContent = 'Compila tutti i campi.';
+    return;
+  }
+
+  try {
+    const { data, error } = await sb
+      .from('utenti')
+      .select('*')
+      .eq('username', user)
+      .eq('attivo', true)
+      .single();
+
+    if(error || !data){
+      err.textContent = 'Username non trovato.';
+      return;
+    }
+
+    const hashed = await hashPwd(pwd);
+
+    if(data.password_hash !== hashed){
+      err.textContent = 'Password errata.';
+      return;
+    }
+
+    currentUser = { id: data.id, username: data.username };
+    localStorage.setItem(USR_KEY, JSON.stringify(currentUser));
+
+    closeModal();
+    updateHomeUI();
+    toast('Bentornato ' + user + '!');
+
+  } catch(e){
+    err.textContent = 'Errore di connessione.';
+  }
+}
+
+function logout(){
+  currentUser=null; localStorage.removeItem(USR_KEY); updateHomeUI();
+  go('home',document.querySelector('#mainnav button')); toast('Logout effettuato.');
+}
+
+async function updateHomeUI(){
+  document.getElementById('home-guest').style.display=currentUser?'none':'block';
+  document.getElementById('home-user').style.display=currentUser?'block':'none';
+  if(currentUser){
+    document.getElementById('home-username').textContent=currentUser.username;
+    loadHomeStats();
+  }
+}
+
+async function loadHomeStats(){
+  if(!currentUser) return;
+  const {data:pron}=await sb.from('pronostici').select('*').eq('utente_id',currentUser.id).maybeSingle();
+  const {data:esiti}=await sb.from('esiti').select('*');
+  const {data:winner}=await sb.from('config').select('value').eq('key','vincitore').maybeSingle();
+  let punti=0,giocate=0,compilate=0;
+  if(pron){
+    MATCHES.forEach(m=>{ if(pron['p'+m.id]) compilate++; });
+    (esiti||[]).forEach(e=>{ giocate++; if(pron['p'+e.partita_id]===e.esito) punti++; });
+    if(winner&&winner.value&&pron.vincitore&&pron.vincitore.toLowerCase()===winner.value.toLowerCase()) punti+=WINNER_PTS;
+  }
+  document.getElementById('home-stats').innerHTML=`
+    <div class="sc"><div class="sl">Punti</div><div class="sv">${punti}</div></div>
+    <div class="sc"><div class="sl">Partite giocate</div><div class="sv">${giocate}</div></div>
+    <div class="sc"><div class="sl">Pronostici</div><div class="sv">${compilate}/72</div></div>
+  `;
+}
+
+async function loadAll(){
+  const [{data:utenti},{data:pronAll},{data:esiti},{data:cfgRows}]=await Promise.all([
+    sb.from('utenti').select('id,username,nome,cognome').eq('attivo',true),
+    sb.from('pronostici').select('*'),
+    sb.from('esiti').select('*'),
+    sb.from('config').select('*')
+  ]);
+  const esitiMap={};
+  (esiti||[]).forEach(e=>esitiMap[e.partita_id]=e.esito);
+  const giocate=(esiti||[]).length;
+  const cfgMap={};
+  (cfgRows||[]).forEach(c=>cfgMap[c.key]=c.value);
+  const winnerReal=(cfgMap.vincitore||'').toLowerCase();
+  const pronMap={};
+  (pronAll||[]).forEach(p=>pronMap[p.utente_id]=p);
+  const classifica=(utenti||[]).map(u=>{
+    const p=pronMap[u.id]||{};
+    let punti=0;
+    Object.entries(esitiMap).forEach(([pid,esito])=>{ if(p['p'+pid]===esito) punti++; });
+    if(winnerReal&&p.vincitore&&p.vincitore.toLowerCase()===winnerReal) punti+=WINNER_PTS;
+    return {...u,punti,pron:p};
+  }).sort((a,b)=>b.punti-a.punti);
+  classiData={classifica,esitiMap,giocate,winnerReal,pronAll:pronAll||[]};
+  renderClassifica();
+  fillUserSelect();
+  if(currentUser) loadHomeStats();
+  return classiData;
+}
+
+function renderClassifica(){
+  if(!classiData)return;
+  const {classifica,giocate}=classiData;
+  const gs=document.getElementById('gstats');
+  if(gs) gs.innerHTML=`
+    <div class="sc"><div class="sl">Partecipanti</div><div class="sv">${classifica.length}</div></div>
+    <div class="sc"><div class="sl">Partite giocate</div><div class="sv">${giocate}</div></div>
+    <div class="sc"><div class="sl">Punteggio max</div><div class="sv">${classifica.length?classifica[0].punti:0}</div></div>
+  `;
+  const body=document.getElementById('lbody');
+  if(!classifica.length){body.innerHTML='<div class="empty"><div class="ei">📋</div><h3>Nessun partecipante</h3></div>';return;}
+  let html='<table class="ltbl"><thead><tr><th>Pos</th><th>Partecipante</th><th>Punti</th><th style="min-width:130px">Progresso</th></tr></thead><tbody>';
+  classifica.forEach((u,i)=>{
+    const pos=i+1, medal=pos===1?'🥇':pos===2?'🥈':pos===3?'🥉':'';
+    const pct=giocate>0?Math.round((u.punti/giocate)*100):0;
+    html+=`<tr><td><span class="rn ${pos<=3?'r'+pos:''}">${medal||pos}</span></td><td><span class="un">${esc(u.username)}</span></td><td><span class="pts">${u.punti}</span> <span style="font-size:11px;color:var(--muted)">/ ${giocate}</span></td><td><span style="font-size:12px;color:var(--muted)">${pct}%</span><div class="pbar"><div class="pfill" style="width:${pct}%"></div></div></td></tr>`;
+  });
+  body.innerHTML=html+'</tbody></table>';
+}
+
+async function renderPronostica(){
+  const noL=document.getElementById('pron-nologin');
+  const cont=document.getElementById('pron-content');
+  const who=document.getElementById('pron-who');
+  if(!currentUser){noL.style.display='block';cont.style.display='none';return;}
+  noL.style.display='none'; cont.style.display='block';
+  who.textContent='Loggato come '+currentUser.username;
+  const {data:pron}=await sb.from('pronostici').select('*').eq('utente_id',currentUser.id).maybeSingle();
+  const locked=!!(pron&&pron.locked);
+  document.getElementById('pron-locked').style.display=locked?'flex':'none';
+  document.getElementById('pron-open').style.display=locked?'none':'block';
+  document.getElementById('pron-view').style.display=locked?'block':'none';
+  if(locked){
+    renderLockedView(pron);
+  } else {
+    renderMatchForm(pron);
+  }
+}
+
+function renderMatchForm(pron){
+  const grid=document.getElementById('match-form-grid');
+  grid.innerHTML=MATCHES.map(m=>{
+    const cur = pron ? (pron['p'+m.id] || '') : '';
+    return `<div class="mfc" id="mfc-${m.id}">
+      <div class="mname"><div class="mnum">Partita ${m.id}</div>${esc(m.t1)} - ${esc(m.t2)}</div>
+      <div class="r12" id="r-${m.id}">
+        <input type="radio" name="p${m.id}" id="p${m.id}-1" value="1" ${cur==='1'?'checked':''}>
+        <label for="p${m.id}-1">1</label>
+        <input type="radio" name="p${m.id}" id="p${m.id}-x" value="X" ${cur==='X'?'checked':''}>
+        <label for="p${m.id}-x">X</label>
+        <input type="radio" name="p${m.id}" id="p${m.id}-2" value="2" ${cur==='2'?'checked':''}>
+        <label for="p${m.id}-2">2</label>
+      </div>
+    </div>`;
+  }).join('');
+  if(pron&&pron.vincitore) document.getElementById('winner-select').value=pron.vincitore;
+}
+
+function renderLockedView(pron){
+  if(!classiData) return;
+  const {esitiMap,winnerReal}=classiData;
+  let html='<div class="mgrid">';
+  MATCHES.forEach(m=>{
+    const pred=pron['p'+m.id]; const esito=esitiMap[m.id];
+    const has=!!esito; const win=has&&pred===esito;
+    const cls=!has?'nd':win?'ok':'ko';
+    html+=`<div class="mc ${cls}"><div class="mn"><div class="mnp">Partita ${m.id}</div>${esc(m.t1)} - ${esc(m.t2)}</div><span class="pill pu ${win?'pw':''}">${pred||'—'}</span>${has?`<span style="font-size:11px;color:var(--muted)">→</span><span class="pill pe">${esito}</span>`:'<span style="font-size:10px;color:var(--muted)">da giocare</span>'}</div>`;
+  });
+  html+='</div>';
+  const myWinner=pron.vincitore||'—';
+  const wHas=!!winnerReal;
+  const wWin=wHas&&myWinner.toLowerCase()===winnerReal;
+  html+=`<div class="winner-result-card ${wHas?(wWin?'ok':'ko'):''}" style="margin-top:12px">
+    <div><strong style="font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:1px">🏆 Vincitore Mondiale</strong><br><span style="font-size:13px">Il tuo pronostico: <strong>${esc(myWinner)}</strong></span></div>
+    ${wHas?`<span style="font-size:13px;font-weight:600;color:${wWin?'var(--green)':'#c00'}">${wWin?'✓ +5 punti':'✗ Sbagliato'}</span>`:'<span style="font-size:12px;color:var(--muted)">Non ancora assegnato</span>'}
+  </div>`;
+  document.getElementById('pron-view').innerHTML=html;
+}
+
+async function savePron(){
+  if(!currentUser) return;
+  const missing=[];
+  MATCHES.forEach(m=>{
+    const checked=document.querySelector(`input[name="p${m.id}"]:checked`);
+    if(!checked) missing.push(m.id);
+  });
+  const winner=document.getElementById('winner-select').value;
+  const msg=document.getElementById('pron-msg');
+  if(missing.length>0){
+    MATCHES.forEach(m=>{
+      const el=document.getElementById('mfc-'+m.id);
+      if(el) el.classList.toggle('missing',missing.includes(m.id));
+    });
+    msg.textContent=`Mancano ${missing.length} pronostic${missing.length===1?'o':'i'}. Compila tutti i campi prima di salvare.`;
+    const first=document.getElementById('mfc-'+missing[0]);
+    if(first) first.scrollIntoView({behavior:'smooth',block:'center'});
+    return;
+  }
+  if(!winner){ msg.textContent='Seleziona il vincitore mondiale prima di salvare.'; return; }
+  if(!confirm('Sei sicuro? Una volta salvati i pronostici non potranno più essere modificati!')) return;
+  const btn=document.getElementById('save-pron-btn');
+  btn.disabled=true; btn.textContent='Salvataggio...';
+  const data={utente_id:currentUser.id,locked:true,vincitore:winner};
+  MATCHES.forEach(m=>{ const c=document.querySelector(`input[name="p${m.id}"]:checked`); if(c) data['p'+m.id]=c.value; });
+  const {error}=await sb.from('pronostici').upsert(data,{onConflict:'utente_id'});
+  btn.disabled=false; btn.textContent='💾 Salva pronostici';
+  if(error){ msg.textContent='✗ Errore: '+error.message; return; }
+  toast('Pronostici salvati definitivamente!');
+  renderPronostica();
+  loadAll();
+}
+
+function fillUserSelect(){
+  if(!classiData) return;
+  const sel=document.getElementById('usel'); const cur=sel.value;
+  sel.innerHTML='<option value="">— Seleziona un partecipante —</option>';
+  classiData.classifica.forEach(u=>{
+    const o=document.createElement('option'); o.value=u.id; o.textContent=u.username; sel.appendChild(o);
+  });
+  if(cur){ sel.value=cur; showUser(); }
+}
+
+function renderRisultati(){ fillUserSelect(); }
+
+function showUser(){
+  const uid=document.getElementById('usel').value;
+  const st=document.getElementById('ustats'),mg=document.getElementById('umatches'),uw=document.getElementById('uwinner');
+  if(!uid||!classiData){st.style.display='none';mg.innerHTML='';uw.style.display='none';return;}
+  const user=classiData.classifica.find(u=>String(u.id)===String(uid));
+  if(!user) return;
+  const {esitiMap,giocate,winnerReal}=classiData;
+  const acc=giocate>0?Math.round((user.punti/giocate)*100):0;
+  const rank=classiData.classifica.findIndex(u=>u.id===user.id)+1;
+  st.style.display='grid';
+  st.innerHTML=`<div class="sc"><div class="sl">Punteggio</div><div class="sv">${user.punti}</div></div><div class="sc"><div class="sl">Giocate</div><div class="sv">${giocate}</div></div><div class="sc"><div class="sl">Accuratezza</div><div class="sv">${acc}%</div></div><div class="sc"><div class="sl">Posizione</div><div class="sv">${rank}°</div></div>`;
+  const myW=user.pron.vincitore||'—';
+  const wHas=!!winnerReal; const wWin=wHas&&myW.toLowerCase()===winnerReal;
+  uw.style.display='block';
+  uw.innerHTML=`<div class="winner-result-card ${wHas?(wWin?'ok':'ko'):''}"><div><strong style="font-family:'Bebas Neue',sans-serif;font-size:15px;letter-spacing:1px">🏆 Vincitore Mondiale</strong><br><span style="font-size:13px">Pronostico: <strong>${esc(myW)}</strong></span></div>${wHas?`<span style="font-size:13px;font-weight:600;color:${wWin?'var(--green)':'#c00'}">${wWin?'✓ +5 punti':'✗ Sbagliato'}</span>`:'<span style="font-size:12px;color:var(--muted)">Da assegnare</span>'}</div>`;
+  let html='';
+  MATCHES.forEach(m=>{
+    const pred=user.pron['p'+m.id]; const esito=esitiMap[m.id];
+    const has=!!esito; const win=has&&pred===esito; const cls=!has?'nd':win?'ok':'ko';
+    html+=`<div class="mc ${cls}"><div class="mn"><div class="mnp">Partita ${m.id}</div>${esc(m.t1)} - ${esc(m.t2)}</div><span class="pill pu ${win?'pw':''}">${pred||'—'}</span>${has?`<span style="font-size:11px;color:var(--muted)">→</span><span class="pill pe">${esito}</span>`:'<span style="font-size:10px;color:var(--muted)">da giocare</span>'}</div>`;
+  });
+  mg.innerHTML=html;
+}
+
+function getAtmPwd(){ return localStorage.getItem(ADM_KEY)||'admin2026'; }
+function initAdmin(){
+  const auth=sessionStorage.getItem(ADM_AUTH)==='1';
+  document.getElementById('adm-login').style.display=auth?'none':'block';
+  document.getElementById('adm-panel').style.display=auth?'block':'none';
+  if(auth) admTab(1);
+}
+function admLogin(){
+  const v=document.getElementById('adm-pwd').value,e=document.getElementById('adm-err');
+  if(v===getAtmPwd()){sessionStorage.setItem(ADM_AUTH,'1');document.getElementById('adm-pwd').value='';e.textContent='';initAdmin();}
+  else{e.textContent='✗ Password errata.';document.getElementById('adm-pwd').value='';setTimeout(()=>e.textContent='',3000);}
+}
+function admLogout(){sessionStorage.removeItem(ADM_AUTH);initAdmin();}
+function admTab(n){
+  [1,2,3,4].forEach(i=>{document.getElementById('adm-t'+i).style.display=i===n?'block':'none';document.getElementById('atab'+i).className=i===n?'btn bg':'btn bx';});
+  if(n===1) renderEsitiGrid();
+  if(n===2) loadUtenti();
+}
+function changeAdmPwd(){
+  const np=document.getElementById('new-adm-pwd').value.trim(),msg=document.getElementById('settings-msg');
+  if(!np){msg.textContent='Inserisci una password.';msg.style.color='#c00';return;}
+  localStorage.setItem(ADM_KEY,np);
+  document.getElementById('new-adm-pwd').value='';
+  msg.textContent='✓ Password aggiornata!';msg.style.color='var(--green)';
+  setTimeout(()=>msg.textContent='',3000);
+}
+
+async function renderEsitiGrid(){
+  const [{data:esiti},{data:cfg}]=await Promise.all([
+    sb.from('esiti').select('*'),
+    sb.from('config').select('*')
+  ]);
+  const em={};(esiti||[]).forEach(e=>em[e.partita_id]=e.esito);
+  const cm={};(cfg||[]).forEach(c=>cm[c.key]=c.value);
+  const w=cm.vincitore||'';
+  document.getElementById('adm-winner').value=w;
+  document.getElementById('esiti-grid').innerHTML=MATCHES.map(m=>{
+    const cur=em[m.id]||'';
+    return `<div class="eg"><div class="eg-name"><div class="eg-num">Partita ${m.id}</div>${esc(m.t1)} - ${esc(m.t2)}</div>
+      <select id="esito-${m.id}" class="${cur?'hv':''}" onchange="this.className=this.value?'hv':''">
+        <option value="">—</option><option value="1" ${cur==='1'?'selected':''}>1</option><option value="X" ${cur==='X'?'selected':''}>X</option><option value="2" ${cur==='2'?'selected':''}>2</option>
+      </select></div>`;
+  }).join('');
+}
+
+async function saveEsiti(){
+  const msg=document.getElementById('esiti-msg');
+  msg.textContent='Salvataggio...';msg.style.color='var(--muted)';
+  const rows=[];
+  MATCHES.forEach(m=>{ const v=document.getElementById('esito-'+m.id)?.value; if(v) rows.push({partita_id:m.id,esito:v}); });
+  const winner=document.getElementById('adm-winner').value;
+  await sb.from('esiti').delete().neq('partita_id',0);
+  if(rows.length) await sb.from('esiti').insert(rows);
+  await sb.from('config').upsert({key:'vincitore',value:winner},{onConflict:'key'});
+  msg.textContent=`✓ ${rows.length} esiti salvati!`;msg.style.color='var(--green)';
+  toast('Esiti aggiornati!');
+  await loadAll();
+  setTimeout(()=>msg.textContent='',4000);
+}
+
+async function loadUtenti(){
+  const [{data:utenti},{data:pronAll}]=await Promise.all([
+    sb.from('utenti').select('id,username,nome,cognome,attivo,created_at').order('created_at'),
+    sb.from('pronostici').select('utente_id,locked')
+  ]);
+  const pronMap={};(pronAll||[]).forEach(p=>pronMap[p.utente_id]=p);
+  const c=document.getElementById('utenti-list');
+  if(!utenti||!utenti.length){c.innerHTML='<div class="empty" style="padding:30px"><div class="ei">👥</div><h3>Nessun utente</h3></div>';return;}
+  let html='<table class="utbl"><thead><tr><th>Partecipante (Nome/Cognome)</th><th>Registrato</th><th>Pronostici</th><th>Stato</th><th></th></tr></thead><tbody>';
+  utenti.forEach(u=>{
+    const date=new Date(u.created_at).toLocaleDateString('it-IT');
+    const p=pronMap[u.id];
+    const pStatus=!p?'<span style="color:var(--muted);font-size:12px">Non compilati</span>':p.locked?'<span style="color:var(--green);font-size:12px;font-weight:600">✓ Salvati</span>':'<span style="color:var(--gold);font-size:12px;font-weight:600">⏳ In bozza</span>';
+    const nC = (u.nome || u.cognome) ? ` <span style="font-weight:400;color:var(--muted);font-size:12px;">(${esc(u.nome)} ${esc(u.cognome)})</span>` : '';
+    html+=`<tr><td><strong>${esc(u.username)}</strong>${nC}</td><td style="color:var(--muted);font-size:13px">${date}</td><td>${pStatus}</td><td>${u.attivo?'<span style="color:var(--green);font-size:12px;font-weight:600">Attivo</span>':'<span style="color:#c00;font-size:12px;font-weight:600">Disabilitato</span>'}</td>
+    <td style="display:flex;gap:6px;flex-wrap:wrap"><button class="btn bx" style="padding:5px 10px;font-size:12px" onclick="toggleUser('${u.id}',${u.attivo})">${u.attivo?'Disabilita':'Riabilita'}</button><button class="btn br" style="padding:5px 10px;font-size:12px" onclick="deleteUser('${u.id}',this)">Elimina</button></td></tr>`;
+  });
+  c.innerHTML=html+'</tbody></table>';
+}
+
+async function toggleUser(id,attivo){
+  await sb.from('utenti').update({attivo:!attivo}).eq('id',id);
+  await loadUtenti(); await loadAll(); toast(attivo?'Utente disabilitato.':'Utente riabilitato.');
+}
+async function deleteUser(id,btn){
+  if(!confirm('Eliminare definitivamente questo utente e tutti i suoi pronostici?')) return;
+  btn.disabled=true; btn.textContent='...';
+  await sb.from('pronostici').delete().eq('utente_id',id);
+  await sb.from('utenti').delete().eq('id',id);
+  await loadUtenti(); await loadAll(); toast('Utente eliminato.');
+}
+
+async function exportExcel(){
+  const [{data:utenti},{data:pronAll},{data:esiti},{data:cfg}]=await Promise.all([
+    sb.from('utenti').select('id,username,nome,cognome').eq('attivo',true),
+    sb.from('pronostici').select('*'),
+    sb.from('esiti').select('*'),
+    sb.from('config').select('*')
+  ]);
+  const esitiMap={};(esiti||[]).forEach(e=>esitiMap[e.partita_id]=e.esito);
+  const cfgMap={};(cfg||[]).forEach(c=>cfgMap[c.key]=c.value);
+  const winnerReal=(cfgMap.vincitore||'').toLowerCase();
+  const pronMap={};(pronAll||[]).forEach(p=>pronMap[p.utente_id]=p);
+  const header=['Username','Nome','Cognome','Punti totali','Vincitore pronosticato','Vincitore ✓',...MATCHES.map(m=>`P${m.id} (${m.t1} - ${m.t2})`)];
+  const rows=[header];
+  (utenti||[]).forEach(u=>{
+    const p=pronMap[u.id]||{};
+    let punti=0;
+    Object.entries(esitiMap).forEach(([pid,esito])=>{ if(p['p'+pid]===esito) punti++; });
+    const wOk=winnerReal&&p.vincitore&&p.vincitore.toLowerCase()===winnerReal;
+    if(wOk) punti+=WINNER_PTS;
+    const row=[u.username, u.nome||'—', u.cognome||'—', punti, p.vincitore||'—', wOk?'✓':'✗'];
+    MATCHES.forEach(m=>{
+      const pred=p['p'+m.id]; const esito=esitiMap[m.id];
+      if (!pred) {
+        row.push('—');
+      } else {
+        row.push(esito?`${pred} (${pred===esito?'✓':'✗'} Esito:${esito})`:pred);
+      }
+    });
+    rows.push(row);
+  });
+  const ws=XLSX.utils.aoa_to_sheet(rows);
+  const wb=XLSX.utils.book_new();
+  
+  /* FIX FIX CORREZIONE APPEND SHEET */
+  XLSX.utils.book_append_sheet(wb, ws, 'Pronostici');
+  
+  XLSX.writeFile(wb,'TotoMondiale_pronostici.xlsx');
+  toast('Excel scaricato!');
+}
+
+async function hashPwd(pwd){
+  const encoder = new TextEncoder();
+  const data = encoder.encode(pwd + 'tm2026salt_super');
+  const hash = await crypto.subtle.digest('SHA-256', data);
+  return Array.from(new Uint8Array(hash))
+    .map(b => b.toString(16).padStart(2,'0'))
+    .join('');
+}
+
+function toast(msg,err){
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.className='toast'+(err?' err':'')+' show';
+  setTimeout(()=>t.className='toast',3000);
+}
+
+function esc(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+init();
+</script>
+</body>
+</html>
